@@ -25,6 +25,7 @@ logger = logging.getLogger('logfile')
 logger.addHandler(logging.FileHandler('logfile'))
 logger.addHandler(logging.StreamHandler(sys.stdout))
 
+
 def parse_homework_status(homework):
     homework_name = homework['homework_name']
     if homework['status'] == 'rejected':
