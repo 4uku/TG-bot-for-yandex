@@ -23,3 +23,4 @@ Traceback (most recent call last):
     last_homework = homeworks['homeworks'][0]
 IndexError: list index out of range
 Сообщение отправлено
+Бот запущен.

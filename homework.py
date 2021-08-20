@@ -54,10 +54,11 @@ def main():
     while True:
         try:
             homeworks = get_homeworks(current_timestamp)
-            last_homework = homeworks['homeworks'][0]
-            text_message = parse_homework_status(last_homework)
-            logger.info('Сообщение отправлено.')
-            send_message(text_message)
+            if len(homeworks['homeworks']) > 1:
+                last_homework = homeworks['homeworks'][0]
+                text_message = parse_homework_status(last_homework)
+                logger.info('Сообщение отправлено.')
+                send_message(text_message)
             time.sleep(5 * 60)
         except Exception as e:
             logger.error(e, exc_info=True)
