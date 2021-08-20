@@ -21,8 +21,8 @@ logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s || %(levelname)s || %(name)s || %(message)s'
 )
-logger = logging.getLogger("logfile")
-logger.addHandler(logging.FileHandler("logfile"))
+logger = logging.getLogger('logfile')
+logger.addHandler(logging.FileHandler('logfile'))
 logger.addHandler(logging.StreamHandler(sys.stdout))
 
 def parse_homework_status(homework):
@@ -52,8 +52,9 @@ def main():
 
     while True:
         try:
-            homework = get_homeworks(current_timestamp)
-            text_message = parse_homework_status(homework)
+            homeworks = get_homeworks(current_timestamp)
+            last_homework = homeworks['homeworks'][0]
+            text_message = parse_homework_status(last_homework)
             logger.info('Сообщение отправлено.')
             send_message(text_message)
             time.sleep(5 * 60)
