@@ -1,8 +1,8 @@
 import logging
 import os
+import requests
 import sys
 import time
-import requests
 
 from telegram import Bot
 
@@ -30,7 +30,11 @@ logger.addHandler(logging.StreamHandler(sys.stdout))
 
 def parse_homework_status(homework):
     homework_name = homework.get('homework_name')
-    if homework.get('status') == 'rejected':
+    if homework_name is None:
+        homework_name = 'UNKNOWN'
+    if homework.get('status') is None:
+        verdict = 'UNKNOWN'
+    elif homework.get('status') == 'rejected':
         verdict = 'К сожалению, в работе нашлись ошибки.'
     elif homework.get('status') == 'reviewing':
         verdict = 'Работа взята в ревью'
@@ -40,15 +44,18 @@ def parse_homework_status(homework):
 
 
 def get_homeworks(current_timestamp):
+    if current_timestamp is None:
+        current_timestamp = int(time.time())
     payload = {'from_date': current_timestamp}
     try:
         homework_statuses = requests.get(URL, headers=HEADERS, params=payload)
         return homework_statuses.json()
-    except Exception as e:
-        return e
+    except requests.exceptions.RequestException as e:
+        raise e
 
 
 def send_message(message):
+    logger.info('Сообщение отправлено.')
     return bot.send_message(chat_id=CHAT_ID, text=message)
 
 
@@ -59,17 +66,14 @@ def main():
     while True:
         try:
             homeworks = get_homeworks(current_timestamp)
-            current_timestamp = int(time.time())
-            if type(homeworks) == Exception:
+            if type(homeworks) == requests.exceptions.RequestException:
                 logger.error(homeworks, exc_info=True)
                 send_message("Не удалось получить данные от Яндекса")
             else:
-                if homeworks.get('current_date') is not None:
-                    current_timestamp = homeworks.get('current_date')
+                current_timestamp = homeworks.get('current_date')
                 if len(homeworks.get('homeworks')) > 0:
                     last_homework = homeworks.get('homeworks')[0]
                     text_message = parse_homework_status(last_homework)
-                    logger.info('Сообщение отправлено.')
                     send_message(text_message)
             time.sleep(5 * 60)
         except Exception as e:
